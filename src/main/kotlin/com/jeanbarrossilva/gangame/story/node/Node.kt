@@ -3,19 +3,13 @@ package com.jeanbarrossilva.gangame.story.node
 interface Node {
     val id: String
 
-    class Builder {
+    class Builder internal constructor() {
         private var id: String? = null
         private val listeners = mutableListOf<OnPointingListener>()
 
         fun id(id: String): Builder {
             return apply {
                 this.id = id
-            }
-        }
-
-        fun onPointing(listener: OnPointingListener): Builder {
-            return apply {
-                listeners.add(listener)
             }
         }
 

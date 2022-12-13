@@ -7,7 +7,7 @@ import com.jeanbarrossilva.gangame.story.node.notifyAll
 abstract class BranchedNode private constructor(): Node {
     protected abstract val branches: List<Node>
 
-    class Builder {
+    class Builder internal constructor() {
         private var id: String? = null
         private val branches = mutableListOf<Node>()
         private val listeners = mutableListOf<OnPointingListener>()
