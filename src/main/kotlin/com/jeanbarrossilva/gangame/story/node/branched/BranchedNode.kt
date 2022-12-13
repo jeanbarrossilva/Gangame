@@ -2,6 +2,7 @@ package com.jeanbarrossilva.gangame.story.node.branched
 
 import com.jeanbarrossilva.gangame.story.node.Node
 import com.jeanbarrossilva.gangame.story.node.OnPointingListener
+import com.jeanbarrossilva.gangame.story.node.UnidentifiedNodeException
 import com.jeanbarrossilva.gangame.story.node.notifyAll
 
 abstract class BranchedNode private constructor(): Node {
@@ -19,7 +20,9 @@ abstract class BranchedNode private constructor(): Node {
         }
 
         fun branch(branch: Node): Builder {
-            return apply { branches.add(branch) }
+            return apply {
+                branches.add(branch)
+            }
         }
 
         fun onPointing(listener: OnPointingListener): Builder {
@@ -30,7 +33,7 @@ abstract class BranchedNode private constructor(): Node {
 
         fun build(): BranchedNode {
             return object: BranchedNode() {
-                override val id = requireNotNull(this@Builder.id)
+                override val id = this@Builder.id ?: throw UnidentifiedNodeException()
                 override val branches = this@Builder.branches.toList()
 
                 override fun pointTo(id: String) {

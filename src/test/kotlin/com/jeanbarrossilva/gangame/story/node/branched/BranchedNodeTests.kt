@@ -1,7 +1,5 @@
-package com.jeanbarrossilva.gangame.story
+package com.jeanbarrossilva.gangame.story.node.branched
 
-import com.jeanbarrossilva.gangame.story.node.branched.NonexistentBranchException
-import com.jeanbarrossilva.gangame.story.node.branched.branchedNode
 import com.jeanbarrossilva.gangame.story.node.node
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
