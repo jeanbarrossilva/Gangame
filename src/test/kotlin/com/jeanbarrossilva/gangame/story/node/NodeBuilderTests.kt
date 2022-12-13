@@ -7,7 +7,7 @@ internal class NodeBuilderTests {
     @Test
     fun `GIVEN a builder without an ID WHEN building THEN it throws`() {
         assertFailsWith<UnidentifiedNodeException> {
-            Node.Builder().build()
+            Node.Builder.Default().build()
         }
     }
 }

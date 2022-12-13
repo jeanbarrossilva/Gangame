@@ -3,24 +3,44 @@ package com.jeanbarrossilva.gangame.story.node
 interface Node {
     val id: String
 
-    class Builder internal constructor() {
+    abstract class Builder<B: Builder<B, N>, N: Node> internal constructor() {
         private var id: String? = null
-        private val listeners = mutableListOf<OnPointingListener>()
 
-        fun id(id: String): Builder {
-            return apply {
+        protected val listeners = mutableListOf<OnPointingListener>()
+
+        class Default internal constructor(): Builder<Default, Node>() {
+            override fun build(): Node {
+                return object: Node {
+                    override val id = getID()
+
+                    override fun pointTo(id: String) {
+                        return listeners.notifyAll(id)
+                    }
+                }
+            }
+        }
+
+        abstract fun build(): N
+
+        fun id(id: String): B {
+            return self {
                 this.id = id
             }
         }
 
-        fun build(): Node {
-            return object: Node {
-                override val id = this@Builder.id ?: throw UnidentifiedNodeException()
-
-                override fun pointTo(id: String) {
-                    listeners.notifyAll(id)
-                }
+        fun onPointing(listener: OnPointingListener): B {
+            return self {
+                listeners.add(listener)
             }
+        }
+
+        protected fun getID(): String {
+            return id ?: throw UnidentifiedNodeException()
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        private fun self(operation: B.() -> Unit): B {
+            return (this as B).apply(operation)
         }
     }
 
