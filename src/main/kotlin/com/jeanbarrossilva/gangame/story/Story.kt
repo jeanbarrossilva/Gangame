@@ -1,6 +1,7 @@
 package com.jeanbarrossilva.gangame.story
 
 import com.jeanbarrossilva.gangame.story.node.Node
+import com.jeanbarrossilva.gangame.story.node.flatten
 
 abstract class Story private constructor() {
     internal abstract val nodes: List<Node>
@@ -25,17 +26,24 @@ abstract class Story private constructor() {
     }
 
     operator fun contains(nodeID: String): Boolean {
-        return nodeID in nodes.map(Node::id)
+        return nodeID in nodes.flatten().map(Node::id)
     }
 
-    fun pointTo(nodeID: String) {
-        assertContains(nodeID)
-        currentNode = nodes.first { it.id == nodeID }
+    fun next(nodeID: String) {
+        assertDirectExistence(nodeID)
+        currentNode = currentNode?.next(nodeID) ?: nodes.firstOrNull()
     }
 
-    private fun assertContains(nodeID: String) {
-        if (!contains(nodeID)) {
-            throw NonexistentNodeException(nodeID)
+    private fun assertDirectExistence(nodeID: String) {
+        val contains = contains(nodeID)
+        val doesNotContain = !contains
+        when {
+            contains && !isDirectNode(nodeID) -> throw IndirectNodeException(nodeID)
+            doesNotContain -> throw NonexistentNodeException(nodeID)
         }
+    }
+
+    private fun isDirectNode(nodeID: String): Boolean {
+        return nodes.find { it.id == nodeID } != null
     }
 }

@@ -1,48 +1,58 @@
 package com.jeanbarrossilva.gangame.story.node
 
-interface Node {
-    val id: String
+abstract class Node {
+    abstract val id: String
+    abstract val next: Node?
 
     abstract class Builder<B: Builder<B, N>, N: Node> internal constructor() {
         private var id: String? = null
 
-        protected val listeners = mutableListOf<OnPointingListener>()
-
         class Default internal constructor(): Builder<Default, Node>() {
             override fun build(): Node {
-                return object: Node {
+                return object: Node() {
                     override val id = getID()
-
-                    override fun pointTo(id: String) {
-                        return listeners.notifyAll(id)
-                    }
+                    override val next: Node? = null
                 }
             }
         }
 
         abstract fun build(): N
 
+        @Suppress("UNCHECKED_CAST")
         fun id(id: String): B {
-            return self {
+            return (this as B).apply {
                 this.id = id
-            }
-        }
-
-        fun onPointing(listener: OnPointingListener): B {
-            return self {
-                listeners.add(listener)
             }
         }
 
         protected fun getID(): String {
             return id ?: throw UnidentifiedNodeException()
         }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun self(operation: B.() -> Unit): B {
-            return (this as B).apply(operation)
-        }
     }
 
-    fun pointTo(id: String)
+    override fun equals(other: Any?): Boolean {
+        return other is Node && other.id == this.id
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
+    fun next(id: String): Node? {
+        var current = next ?: return null
+        while (current.id != id) {
+            current = current.next ?: return null
+        }
+        return current
+    }
+
+    fun toList(): List<Node> {
+        val accumulated = mutableListOf(this)
+        var current = next
+        while (current != null) {
+            accumulated.add(current)
+            current = current.next
+        }
+        return accumulated.toList()
+    }
 }

@@ -30,18 +30,19 @@ internal class StoryTests {
     fun `GIVEN a node WHEN pointing to it THEN it is the current one`() {
         val node = node("preface")
         val story = story { node(node) }
-        story.pointTo(node.id)
+        story.next(node.id)
         assertEquals(node, story.currentNode)
     }
 
     @Test
-    fun `GIVEN a nonexistent node WHEN pointing to it THEN it throws`() {
-        assertFailsWith<NonexistentNodeException> {
+    fun `GIVEN an indirect node WHEN trying to find it THEN it throws`() {
+        assertFailsWith<IndirectNodeException> {
             story {
                 node(node("intro"))
                 node(node("resolution"))
+                node(branchedNode("extras") { branch(node("credits")) })
             }
-                .pointTo("climax")
+                .next("credits")
         }
     }
 }

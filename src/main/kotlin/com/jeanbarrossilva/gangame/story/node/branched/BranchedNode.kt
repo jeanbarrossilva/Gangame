@@ -1,10 +1,14 @@
 package com.jeanbarrossilva.gangame.story.node.branched
 
+import com.jeanbarrossilva.gangame.story.extensions.nextOrNull
 import com.jeanbarrossilva.gangame.story.node.Node
-import com.jeanbarrossilva.gangame.story.node.notifyAll
+import com.jeanbarrossilva.gangame.story.node.flatten
 
-abstract class BranchedNode private constructor(): Node {
-    protected abstract val branches: List<Node>
+abstract class BranchedNode private constructor(private val branches: List<Node>): Node() {
+    private val branchesIterator = branches.iterator()
+
+    override val next
+        get() = branchesIterator.nextOrNull()
 
     class Builder internal constructor(): Node.Builder<Builder, BranchedNode>() {
         private val branches = mutableListOf<Node>()
@@ -16,25 +20,13 @@ abstract class BranchedNode private constructor(): Node {
         }
 
         override fun build(): BranchedNode {
-            return object: BranchedNode() {
+            return object: BranchedNode(this@Builder.branches.toList()) {
                 override val id = getID()
-                override val branches = this@Builder.branches.toList()
-
-                override fun pointTo(id: String) {
-                    assertContains(id)
-                    listeners.notifyAll(id)
-                }
             }
         }
     }
 
     operator fun contains(branchID: String): Boolean {
-        return branchID in branches.map(Node::id)
-    }
-
-    protected fun assertContains(branchID: String) {
-        if (!contains(branchID)) {
-            throw NonexistentBranchException(parentNodeID = id, branchID)
-        }
+        return branchID in branches.flatten().map(Node::id)
     }
 }
