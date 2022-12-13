@@ -45,7 +45,7 @@ abstract class BranchedNode private constructor(): Node {
     private fun assertExistenceOfBranchIdentifiedAs(branchID: String) {
         val isBranchNonexistent = branchID !in branches.map(Node::id)
         if (isBranchNonexistent) {
-            throw IllegalArgumentException("Cannot point to a nonexistent \"$branchID\" branch.")
+            throw NonexistentBranchException(branchID)
         }
     }
 
