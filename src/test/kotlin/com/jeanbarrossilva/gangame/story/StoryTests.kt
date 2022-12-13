@@ -1,5 +1,6 @@
 package com.jeanbarrossilva.gangame.story
 
+import com.jeanbarrossilva.gangame.story.node.branched.branchedNode
 import com.jeanbarrossilva.gangame.story.node.node
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -11,13 +12,18 @@ internal class StoryTests {
     fun `GIVEN various nodes WHEN adding them THEN they're ordered`() {
         val onceUponATimeNode = node("once-upon-a-time")
         val thereWasARatNode = node("there-was-a-rat")
-        val namedMattNode = node("named-matt")
+        val namedMattBranch = node("named-matt")
+        val namedNatBranch = node("named-nat")
+        val namedNode = branchedNode("named") {
+            branch(namedMattBranch)
+            branch(namedNatBranch)
+        }
         val story = story {
             node(onceUponATimeNode)
             node(thereWasARatNode)
-            node(namedMattNode)
+            node(namedNode)
         }
-        assertContentEquals(listOf(onceUponATimeNode, thereWasARatNode, namedMattNode), story.nodes)
+        assertContentEquals(listOf(onceUponATimeNode, thereWasARatNode, namedNode), story.nodes)
     }
 
     @Test
