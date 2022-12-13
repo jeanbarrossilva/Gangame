@@ -10,10 +10,9 @@ import kotlin.test.assertTrue
 internal class BranchedNodeTests {
     @Test
     fun `GIVEN a branch WHEN pointing to it THEN the listener is notified`() {
-        val branch = node { id("branch") }
+        val branch = node("branch")
         var isPointingToBranch = false
-        val node = branchedNode {
-            id("branched-node")
+        val node = branchedNode("branched-node") {
             branch(branch)
             onPointing { isPointingToBranch = it == branch.id }
         }
@@ -24,11 +23,10 @@ internal class BranchedNodeTests {
     @Test
     fun `GIVEN a nonexistent branch WHEN pointing to it THEN it throws`() {
         assertFailsWith<NonexistentBranchException> {
-            branchedNode {
-                id("branched-node")
-                branch(node { id("first-branch") })
-                branch(node { id("second-branch") })
-                branch(node { id("third-branch") })
+            branchedNode("branched-node") {
+                branch(node("first-branch"))
+                branch(node("second-branch"))
+                branch(node("third-branch"))
             }
                 .pointTo("fourth-branch")
         }

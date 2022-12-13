@@ -1,5 +1,5 @@
 package com.jeanbarrossilva.gangame.story.node
 
-fun node(build: Node.Builder.() -> Unit): Node {
-    return Node.Builder().apply(build).build()
+fun node(id: String, build: Node.Builder.() -> Unit = { }): Node {
+    return Node.Builder().id(id).apply(build).build()
 }
