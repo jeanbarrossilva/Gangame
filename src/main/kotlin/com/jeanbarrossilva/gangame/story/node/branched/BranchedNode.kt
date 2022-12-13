@@ -1,10 +1,11 @@
 package com.jeanbarrossilva.gangame.story.node.branched
 
 import com.jeanbarrossilva.gangame.story.node.Node
+import com.jeanbarrossilva.gangame.story.node.OnPointingListener
+import com.jeanbarrossilva.gangame.story.node.notifyAll
 
 abstract class BranchedNode private constructor(): Node {
     protected abstract val branches: List<Node>
-    protected abstract val listeners: List<OnPointingListener>
 
     class Builder {
         private var id: String? = null
@@ -17,12 +18,11 @@ abstract class BranchedNode private constructor(): Node {
             }
         }
 
-        fun branch(id: String): Builder {
-            val branch = Node.identifiedAs(id)
+        fun branch(branch: Node): Builder {
             return apply { branches.add(branch) }
         }
 
-        fun listen(listener: OnPointingListener): Builder {
+        fun onPointing(listener: OnPointingListener): Builder {
             return apply {
                 listeners.add(listener)
             }
@@ -32,25 +32,22 @@ abstract class BranchedNode private constructor(): Node {
             return object: BranchedNode() {
                 override val id = requireNotNull(this@Builder.id)
                 override val branches = this@Builder.branches.toList()
-                override val listeners = this@Builder.listeners.toList()
+
+                override fun pointTo(id: String) {
+                    assertContains(id)
+                    listeners.notifyAll(id)
+                }
             }
         }
     }
 
-    fun pointTo(branchID: String) {
-        assertExistenceOfBranchIdentifiedAs(branchID)
-        notifyListenersOfPointingTo(branchID)
+    operator fun contains(branchID: String): Boolean {
+        return branchID in branches.map(Node::id)
     }
 
-    private fun assertExistenceOfBranchIdentifiedAs(branchID: String) {
-        val isBranchNonexistent = branchID !in branches.map(Node::id)
-        if (isBranchNonexistent) {
-            throw NonexistentBranchException(branchID)
+    protected fun assertContains(branchID: String) {
+        if (!contains(branchID)) {
+            throw NonexistentBranchException(parentNodeID = id, branchID)
         }
-    }
-
-    private fun notifyListenersOfPointingTo(branchID: String) {
-        val branch = branches.single { it.id == branchID }
-        listeners.forEach { it.onPointTo(branch) }
     }
 }
