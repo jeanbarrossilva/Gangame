@@ -1,7 +1,7 @@
 package com.jeanbarrossilva.gangame.story
 
-import com.jeanbarrossilva.gangame.story.node.branched.branchedNode
-import com.jeanbarrossilva.gangame.story.node.node
+import com.jeanbarrossilva.gangame.story.path.branched.branchedPath
+import com.jeanbarrossilva.gangame.story.path.path
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -9,38 +9,38 @@ import kotlin.test.assertFailsWith
 
 internal class StoryTests {
     @Test
-    fun `GIVEN various nodes WHEN adding them THEN they're ordered`() {
-        val onceUponATimeNode = node("once-upon-a-time")
-        val thereWasARatNode = node("there-was-a-rat")
-        val namedMattBranch = node("named-matt")
-        val namedNatBranch = node("named-nat")
-        val namedNode = branchedNode("named") {
+    fun `GIVEN various paths WHEN adding them THEN they're ordered`() {
+        val onceUponATimePath = path("once-upon-a-time")
+        val thereWasARatPath = path("there-was-a-rat")
+        val namedMattBranch = path("named-matt")
+        val namedNatBranch = path("named-nat")
+        val namedPath = branchedPath("named") {
             branch(namedMattBranch)
             branch(namedNatBranch)
         }
         val story = story {
-            node(onceUponATimeNode)
-            node(thereWasARatNode)
-            node(namedNode)
+            path(onceUponATimePath)
+            path(thereWasARatPath)
+            path(namedPath)
         }
-        assertContentEquals(listOf(onceUponATimeNode, thereWasARatNode, namedNode), story.nodes)
+        assertContentEquals(listOf(onceUponATimePath, thereWasARatPath, namedPath), story.paths)
     }
 
     @Test
-    fun `GIVEN a node WHEN pointing to it THEN it is the current one`() {
-        val node = node("preface")
-        val story = story { node(node) }
-        story.next(node.id)
-        assertEquals(node, story.currentNode)
+    fun `GIVEN a path WHEN pointing to it THEN it is the current one`() {
+        val path = path("preface")
+        val story = story { path(path) }
+        story.next(path.id)
+        assertEquals(path, story.currentPath)
     }
 
     @Test
-    fun `GIVEN an indirect node WHEN trying to find it THEN it throws`() {
-        assertFailsWith<IndirectNodeException> {
+    fun `GIVEN an indirect path WHEN trying to find it THEN it throws`() {
+        assertFailsWith<IndirectPathException> {
             story {
-                node(node("intro"))
-                node(node("resolution"))
-                node(branchedNode("extras") { branch(node("credits")) })
+                path(path("intro"))
+                path(path("resolution"))
+                path(branchedPath("extras") { branch(path("credits")) })
             }
                 .next("credits")
         }

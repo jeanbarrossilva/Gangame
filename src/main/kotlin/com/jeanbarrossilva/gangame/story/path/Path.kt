@@ -1,17 +1,17 @@
-package com.jeanbarrossilva.gangame.story.node
+package com.jeanbarrossilva.gangame.story.path
 
-abstract class Node {
+abstract class Path {
     abstract val id: String
-    abstract val next: Node?
+    abstract val next: Path?
 
-    abstract class Builder<B: Builder<B, N>, N: Node> internal constructor() {
+    abstract class Builder<B: Builder<B, N>, N: Path> internal constructor() {
         private var id: String? = null
 
-        class Default internal constructor(): Builder<Default, Node>() {
-            override fun build(): Node {
-                return object: Node() {
+        class Default internal constructor(): Builder<Default, Path>() {
+            override fun build(): Path {
+                return object: Path() {
                     override val id = getID()
-                    override val next: Node? = null
+                    override val next: Path? = null
                 }
             }
         }
@@ -26,19 +26,19 @@ abstract class Node {
         }
 
         protected fun getID(): String {
-            return id ?: throw UnidentifiedNodeException()
+            return id ?: throw UnidentifiedPathException()
         }
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is Node && other.id == this.id
+        return other is Path && other.id == this.id
     }
 
     override fun hashCode(): Int {
         return id.hashCode()
     }
 
-    fun next(id: String): Node? {
+    fun next(id: String): Path? {
         var current = next ?: return null
         while (current.id != id) {
             current = current.next ?: return null
@@ -46,7 +46,7 @@ abstract class Node {
         return current
     }
 
-    fun toList(): List<Node> {
+    fun toList(): List<Path> {
         val accumulated = mutableListOf(this)
         var current = next
         while (current != null) {

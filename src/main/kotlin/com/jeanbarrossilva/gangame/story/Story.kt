@@ -1,49 +1,49 @@
 package com.jeanbarrossilva.gangame.story
 
-import com.jeanbarrossilva.gangame.story.node.Node
-import com.jeanbarrossilva.gangame.story.node.flatten
+import com.jeanbarrossilva.gangame.story.path.Path
+import com.jeanbarrossilva.gangame.story.path.flatten
 
 abstract class Story private constructor() {
-    internal abstract val nodes: List<Node>
+    internal abstract val paths: List<Path>
 
-    internal var currentNode: Node? = null
+    internal var currentPath: Path? = null
         private set
 
     class Builder internal constructor() {
-        private val nodes = mutableListOf<Node>()
+        private val paths = mutableListOf<Path>()
 
-        fun node(node: Node): Builder {
+        fun path(path: Path): Builder {
             return apply {
-                nodes.add(node)
+                paths.add(path)
             }
         }
 
         fun build(): Story {
             return object: Story() {
-                override val nodes = this@Builder.nodes.toList()
+                override val paths = this@Builder.paths.toList()
             }
         }
     }
 
-    operator fun contains(nodeID: String): Boolean {
-        return nodeID in nodes.flatten().map(Node::id)
+    operator fun contains(pathID: String): Boolean {
+        return pathID in paths.flatten().map(Path::id)
     }
 
-    fun next(nodeID: String) {
-        assertDirectExistence(nodeID)
-        currentNode = currentNode?.next(nodeID) ?: nodes.firstOrNull()
+    fun next(pathID: String) {
+        assertContainsDirectPath(pathID)
+        currentPath = currentPath?.next(pathID) ?: paths.firstOrNull()
     }
 
-    private fun assertDirectExistence(nodeID: String) {
-        val contains = contains(nodeID)
+    private fun assertContainsDirectPath(pathID: String) {
+        val contains = contains(pathID)
         val doesNotContain = !contains
         when {
-            contains && !isDirectNode(nodeID) -> throw IndirectNodeException(nodeID)
-            doesNotContain -> throw NonexistentNodeException(nodeID)
+            contains && !isDirectPath(pathID) -> throw IndirectPathException(pathID)
+            doesNotContain -> throw NonexistentPathException(pathID)
         }
     }
 
-    private fun isDirectNode(nodeID: String): Boolean {
-        return nodes.find { it.id == nodeID } != null
+    private fun isDirectPath(pathID: String): Boolean {
+        return paths.find { it.id == pathID } != null
     }
 }
