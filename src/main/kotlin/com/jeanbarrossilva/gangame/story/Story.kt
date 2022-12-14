@@ -54,20 +54,20 @@ abstract class Story private constructor() {
         val doesNotContain = !contains
         when {
             contains && isPastPath(pathID) -> throw PastPathException(pathID)
-            contains && !isPathDirect(pathID) -> throw IndirectPathException(currentPath?.id, pathID)
+            contains && isIndirectPath(pathID) -> throw IndirectPathException(currentPath?.id, pathID)
             doesNotContain -> throw NonexistentPathException(pathID)
         }
-    }
-
-    private fun isPathDirect(pathID: String): Boolean {
-        val isCurrentPathsChild = currentPath?.isParentOf(pathID)
-        val isRoot = paths[pathID] != null
-        return isCurrentPathsChild ?: isRoot
     }
 
     private fun isPastPath(pathID: String): Boolean {
         return with(flattenedPaths) {
             indexOf(pathID) < indexOf(currentPath)
         }
+    }
+
+    private fun isIndirectPath(pathID: String): Boolean {
+        val isNotCurrentPathsChild = currentPath?.isParentOf(pathID)?.not()
+        val isNotRoot = paths[pathID] == null
+        return isNotCurrentPathsChild ?: isNotRoot
     }
 }
