@@ -45,17 +45,15 @@ abstract class Story private constructor() {
     }
 
     fun advanceTo(pathID: String) {
-        assertContainsDirectPath(pathID)
+        assertDirectPath(pathID)
         currentPath = currentPath?.next(pathID) ?: paths[pathID]
     }
 
-    private fun assertContainsDirectPath(pathID: String) {
-        val contains = contains(pathID)
-        val doesNotContain = !contains
+    private fun assertDirectPath(pathID: String) {
         when {
-            contains && isPastPath(pathID) -> throw PastPathException(pathID)
-            contains && isIndirectPath(pathID) -> throw IndirectPathException(currentPath?.id, pathID)
-            doesNotContain -> throw NonexistentPathException(pathID)
+            !contains(pathID) -> throw NonexistentPathException(pathID)
+            isPastPath(pathID) -> throw PastPathException(pathID)
+            isIndirectPath(pathID) -> throw IndirectPathException(currentPath?.id, pathID)
         }
     }
 
