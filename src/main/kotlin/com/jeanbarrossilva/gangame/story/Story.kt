@@ -1,13 +1,18 @@
 package com.jeanbarrossilva.gangame.story
 
+import com.jeanbarrossilva.gangame.story.extensions.getValue
+import com.jeanbarrossilva.gangame.story.extensions.setValue
 import com.jeanbarrossilva.gangame.story.path.Path
 import com.jeanbarrossilva.gangame.story.path.flatten
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 abstract class Story private constructor() {
-    internal abstract val paths: List<Path>
+    private val currentPathFlow = MutableStateFlow<Path?>(null)
+    private var currentPath by currentPathFlow
 
-    internal var currentPath: Path? = null
-        private set
+    internal abstract val paths: List<Path>
 
     class Builder internal constructor() {
         private val paths = mutableListOf<Path>()
@@ -23,6 +28,10 @@ abstract class Story private constructor() {
                 override val paths = this@Builder.paths.toList()
             }
         }
+    }
+
+    fun getCurrentPathFlow(): StateFlow<Path?> {
+        return currentPathFlow.asStateFlow()
     }
 
     operator fun contains(pathID: String): Boolean {

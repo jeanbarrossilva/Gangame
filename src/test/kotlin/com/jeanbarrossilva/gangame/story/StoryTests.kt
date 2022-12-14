@@ -31,7 +31,7 @@ internal class StoryTests {
         val path = path("preface")
         val story = story { path(path) }
         story.next(path.id)
-        assertEquals(path, story.currentPath)
+        assertEquals(path, story.getCurrentPathFlow().value)
     }
 
     @Test
