@@ -3,6 +3,7 @@ package com.jeanbarrossilva.gangame.story.path.branched
 import com.jeanbarrossilva.gangame.story.extensions.nextOrNull
 import com.jeanbarrossilva.gangame.story.path.Path
 import com.jeanbarrossilva.gangame.story.path.flatten
+import com.jeanbarrossilva.gangame.story.path.get
 import com.jeanbarrossilva.gangame.story.path.ids
 
 abstract class BranchedPath private constructor(private val branches: List<Path>): Path() {
@@ -33,6 +34,10 @@ abstract class BranchedPath private constructor(private val branches: List<Path>
 
     override fun isParentOf(id: String): Boolean {
         return id in branches.ids
+    }
+
+    override fun next(id: String): Path? {
+        return toList()[id]
     }
 
     override fun toList(): List<Path> {

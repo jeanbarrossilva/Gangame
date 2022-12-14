@@ -46,6 +46,14 @@ abstract class Path {
         return next?.id == id
     }
 
+    open fun next(id: String): Path? {
+        var current = next ?: return null
+        while (current.id != id) {
+            current = current.next ?: return null
+        }
+        return current
+    }
+
     open fun toList(): List<Path> {
         val accumulated = mutableListOf(this)
         var current = next
@@ -54,13 +62,5 @@ abstract class Path {
             current = current.next
         }
         return accumulated.toList()
-    }
-
-    fun next(id: String): Path? {
-        var current = next ?: return null
-        while (current.id != id) {
-            current = current.next ?: return null
-        }
-        return current
     }
 }

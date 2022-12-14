@@ -33,6 +33,7 @@ internal class BranchedPathTests {
         val path = branchedPath("main") {
             branch(
                 branchedPath("parent") {
+                    branch(path("unexpected-nested-branch"))
                     branch(nestedBranch)
                 }
             )
