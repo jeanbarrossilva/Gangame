@@ -40,7 +40,7 @@ abstract class Story private constructor() {
         return pathID in paths.flatten().ids
     }
 
-    fun next(pathID: String) {
+    fun advanceTo(pathID: String) {
         assertContainsDirectPath(pathID)
         currentPath = currentPath?.next(pathID) ?: paths[pathID]
     }

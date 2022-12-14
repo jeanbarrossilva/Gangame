@@ -37,7 +37,7 @@ internal class StoryTests {
     fun `GIVEN a path WHEN trying to find it THEN it is the current one`() {
         val path = path("preface")
         val story = story { path(path) }
-        story.next(path.id)
+        story.advanceTo(path.id)
         assertCurrentPathEquals(path, story)
     }
 
@@ -47,11 +47,11 @@ internal class StoryTests {
         val parentBranch = branchedPath("parent") { branch(childBranch) }
         val mainPath = branchedPath("main") { branch(parentBranch) }
         val story = story { path(mainPath) }
-        story.next(mainPath.id)
+        story.advanceTo(mainPath.id)
         assertCurrentPathEquals(mainPath, story)
-        story.next(parentBranch.id)
+        story.advanceTo(parentBranch.id)
         assertCurrentPathEquals(parentBranch, story)
-        story.next(childBranch.id)
+        story.advanceTo(childBranch.id)
         assertCurrentPathEquals(childBranch, story)
     }
 
@@ -63,7 +63,7 @@ internal class StoryTests {
                 path(path("resolution"))
                 path(branchedPath("extras") { branch(path("credits")) })
             }
-                .next("credits")
+                .advanceTo("credits")
         }
     }
 
