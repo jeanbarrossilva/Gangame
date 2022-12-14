@@ -14,3 +14,7 @@ internal operator fun Collection<Path>.get(id: String): Path? {
         it.id == id
     }
 }
+
+internal fun Collection<Path>.indexOf(id: String): Int {
+    return indexOf(get(id))
+}

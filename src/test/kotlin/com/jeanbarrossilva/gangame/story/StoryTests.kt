@@ -34,7 +34,7 @@ internal class StoryTests {
     }
 
     @Test
-    fun `GIVEN a path WHEN trying to find it THEN it is the current one`() {
+    fun `GIVEN a path WHEN advancing to it THEN it is the current one`() {
         val path = path("preface")
         val story = story { path(path) }
         story.advanceTo(path.id)
@@ -42,7 +42,7 @@ internal class StoryTests {
     }
 
     @Test
-    fun `GIVEN nested paths WHEN trying to find them THEN they're the current one`() {
+    fun `GIVEN nested paths WHEN advancing to them THEN they're the current one`() {
         val childBranch = path("child")
         val parentBranch = branchedPath("parent") { branch(childBranch) }
         val mainPath = branchedPath("main") { branch(parentBranch) }
@@ -56,7 +56,19 @@ internal class StoryTests {
     }
 
     @Test
-    fun `GIVEN an indirect path WHEN trying to find it THEN it throws`() {
+    fun `GIVEN a past path WHEN advancing to it THEN it throws`() {
+        assertFailsWith<PastPathException> {
+            val secondPath = path("second")
+            val firstPath = branchedPath("first") { branch(secondPath) }
+            val story = story { path(firstPath) }
+            story.advanceTo(firstPath.id)
+            story.advanceTo(secondPath.id)
+            story.advanceTo(firstPath.id)
+        }
+    }
+
+    @Test
+    fun `GIVEN an indirect path WHEN advancing to it THEN it throws`() {
         assertFailsWith<IndirectPathException> {
             story {
                 path(path("intro"))

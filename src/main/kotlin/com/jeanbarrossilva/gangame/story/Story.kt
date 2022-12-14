@@ -6,6 +6,7 @@ import com.jeanbarrossilva.gangame.story.path.Path
 import com.jeanbarrossilva.gangame.story.path.flatten
 import com.jeanbarrossilva.gangame.story.path.get
 import com.jeanbarrossilva.gangame.story.path.ids
+import com.jeanbarrossilva.gangame.story.path.indexOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,6 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 abstract class Story private constructor() {
     private val currentPathFlow = MutableStateFlow<Path?>(null)
     private var currentPath by currentPathFlow
+
+    private val flattenedPaths
+        get() = paths.flatten()
 
     internal abstract val paths: List<Path>
 
@@ -37,7 +41,7 @@ abstract class Story private constructor() {
     }
 
     operator fun contains(pathID: String): Boolean {
-        return pathID in paths.flatten().ids
+        return pathID in flattenedPaths.ids
     }
 
     fun advanceTo(pathID: String) {
@@ -48,12 +52,22 @@ abstract class Story private constructor() {
     private fun assertContainsDirectPath(pathID: String) {
         val contains = contains(pathID)
         val doesNotContain = !contains
+        when {
+            contains && isPastPath(pathID) -> throw PastPathException(pathID)
+            contains && !isPathDirect(pathID) -> throw IndirectPathException(pathID)
+            doesNotContain -> throw NonexistentPathException(pathID)
+        }
+    }
+
+    private fun isPathDirect(pathID: String): Boolean {
         val isCurrentPathsChild = currentPath?.isParentOf(pathID)
         val isRoot = paths[pathID] != null
-        val isDirect = isCurrentPathsChild ?: isRoot
-        when {
-            contains && !isDirect -> throw IndirectPathException(pathID)
-            doesNotContain -> throw NonexistentPathException(pathID)
+        return isCurrentPathsChild ?: isRoot
+    }
+
+    private fun isPastPath(pathID: String): Boolean {
+        return with(flattenedPaths) {
+            indexOf(pathID) < indexOf(currentPath)
         }
     }
 }
