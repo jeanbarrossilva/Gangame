@@ -38,15 +38,15 @@ abstract class Path {
         return id.hashCode()
     }
 
-    fun next(id: String): Path? {
-        var current = next ?: return null
-        while (current.id != id) {
-            current = current.next ?: return null
-        }
-        return current
+    override fun toString(): String {
+        return "Path(id=$id, next=$next)"
     }
 
-    fun toList(): List<Path> {
+    open fun isParentOf(id: String): Boolean {
+        return next?.id == id
+    }
+
+    open fun toList(): List<Path> {
         val accumulated = mutableListOf(this)
         var current = next
         while (current != null) {
@@ -54,5 +54,13 @@ abstract class Path {
             current = current.next
         }
         return accumulated.toList()
+    }
+
+    fun next(id: String): Path? {
+        var current = next ?: return null
+        while (current.id != id) {
+            current = current.next ?: return null
+        }
+        return current
     }
 }

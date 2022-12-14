@@ -4,6 +4,8 @@ import com.jeanbarrossilva.gangame.story.extensions.getValue
 import com.jeanbarrossilva.gangame.story.extensions.setValue
 import com.jeanbarrossilva.gangame.story.path.Path
 import com.jeanbarrossilva.gangame.story.path.flatten
+import com.jeanbarrossilva.gangame.story.path.get
+import com.jeanbarrossilva.gangame.story.path.ids
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,24 +37,23 @@ abstract class Story private constructor() {
     }
 
     operator fun contains(pathID: String): Boolean {
-        return pathID in paths.flatten().map(Path::id)
+        return pathID in paths.flatten().ids
     }
 
     fun next(pathID: String) {
         assertContainsDirectPath(pathID)
-        currentPath = currentPath?.next(pathID) ?: paths.firstOrNull()
+        currentPath = currentPath?.next(pathID) ?: paths[pathID]
     }
 
     private fun assertContainsDirectPath(pathID: String) {
         val contains = contains(pathID)
         val doesNotContain = !contains
+        val isCurrentPathsChild = currentPath?.isParentOf(pathID)
+        val isRoot = paths[pathID] != null
+        val isDirect = isCurrentPathsChild ?: isRoot
         when {
-            contains && !isDirectPath(pathID) -> throw IndirectPathException(pathID)
+            contains && !isDirect -> throw IndirectPathException(pathID)
             doesNotContain -> throw NonexistentPathException(pathID)
         }
-    }
-
-    private fun isDirectPath(pathID: String): Boolean {
-        return paths.find { it.id == pathID } != null
     }
 }

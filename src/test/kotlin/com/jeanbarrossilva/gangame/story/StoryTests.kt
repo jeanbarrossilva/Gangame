@@ -1,13 +1,20 @@
 package com.jeanbarrossilva.gangame.story
 
+import com.jeanbarrossilva.gangame.story.path.Path
 import com.jeanbarrossilva.gangame.story.path.branched.branchedPath
 import com.jeanbarrossilva.gangame.story.path.path
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 internal class StoryTests {
+    @Test
+    fun `GIVEN an empty story WHEN getting the current path THEN it is null`() {
+        assertNull(story().getCurrentPathFlow().value)
+    }
+
     @Test
     fun `GIVEN various paths WHEN adding them THEN they're ordered`() {
         val onceUponATimePath = path("once-upon-a-time")
@@ -27,11 +34,25 @@ internal class StoryTests {
     }
 
     @Test
-    fun `GIVEN a path WHEN pointing to it THEN it is the current one`() {
+    fun `GIVEN a path WHEN trying to find it THEN it is the current one`() {
         val path = path("preface")
         val story = story { path(path) }
         story.next(path.id)
-        assertEquals(path, story.getCurrentPathFlow().value)
+        assertCurrentPathEquals(path, story)
+    }
+
+    @Test
+    fun `GIVEN nested paths WHEN trying to find them THEN they're the current one`() {
+        val childBranch = path("child")
+        val parentBranch = branchedPath("parent") { branch(childBranch) }
+        val mainPath = branchedPath("main") { branch(parentBranch) }
+        val story = story { path(mainPath) }
+        story.next(mainPath.id)
+        assertCurrentPathEquals(mainPath, story)
+        story.next(parentBranch.id)
+        assertCurrentPathEquals(parentBranch, story)
+        story.next(childBranch.id)
+        assertCurrentPathEquals(childBranch, story)
     }
 
     @Test
@@ -44,5 +65,9 @@ internal class StoryTests {
             }
                 .next("credits")
         }
+    }
+
+    private fun assertCurrentPathEquals(expected: Path?, story: Story) {
+        assertEquals(expected?.id, story.getCurrentPathFlow().value?.id)
     }
 }
