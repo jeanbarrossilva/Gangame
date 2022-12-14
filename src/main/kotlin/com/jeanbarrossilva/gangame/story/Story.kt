@@ -54,7 +54,7 @@ abstract class Story private constructor() {
         val doesNotContain = !contains
         when {
             contains && isPastPath(pathID) -> throw PastPathException(pathID)
-            contains && !isPathDirect(pathID) -> throw IndirectPathException(pathID)
+            contains && !isPathDirect(pathID) -> throw IndirectPathException(currentPath?.id, pathID)
             doesNotContain -> throw NonexistentPathException(pathID)
         }
     }
